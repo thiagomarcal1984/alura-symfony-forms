@@ -3,7 +3,7 @@
 {% block title %}Listagem de Séries{% endblock %}
 
 {% block body %}
-    {% if successMessage %}
+    {% if successMessage is not empty %}
         <div class="alert alert-success">
             {{ successMessage }}
         </div>

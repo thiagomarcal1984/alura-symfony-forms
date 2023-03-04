@@ -298,3 +298,62 @@ Inserção do botão de editar em `index.html.twig`:
     {% endfor %}
 </ul>
 ```
+
+# Salvando a edição
+Nova rota para confirmar as alterações na entidade:
+```php
+class SeriesController extends AbstractController
+{
+    public function __construct(
+        private SeriesRepository $seriesRepository,
+        // Praticando a injeção da dependência do EntityManager.
+        private EntityManagerInterface $entityManager,
+    )
+    {
+    }
+
+    #[Route('/series/edit/{series}', name: 'app_store_series_changes', methods: ['PATCH'])]
+    public function storeSeriesChanges(Series $series, Request $request): Response {
+        $series->setName($request->request->get('name'));
+        $this->entityManager->flush(); // Confirma as alterações no banco.
+        $request->getSession()->set('success', "Série {$series->getName()} editada com sucesso");
+        return new RedirectResponse('/series');
+    }
+}
+```
+
+Formas diferentes de testar conteúdo de uma variável no Twig:
+```
+    {# Se precisar apenas verificar se está vazia, use: #}
+    {% if successMessage is not empty %}
+
+    {# Se precisar comparar o conteúdo, use esta: #}
+    {% if successMessage is not same as '' %} 
+```
+
+Adaptação do arquivo `form.html.twig`:
+```php
+{% block title %}{{ series is defined ? 'Editar' : 'Nova' }} Série{% endblock %}
+
+{% block body %}
+    <form method="post" action="{{ series is defined ? path('app_store_series_changes', { series: series.id }) : path('app_add_series') }}">
+        <div class="mb-3">
+            <label class="form-label" for="name">Nome da série</label>
+            <input class="form-control" type="text" name="name" id="name" value="{{ series is defined ? series.name : '' }}">
+        </div>
+
+        {% if series is defined %}
+            <input type="hidden" name="_method" value="PATCH">
+        {% endif %}
+
+        <button class="btn btn-dark">
+            {{ series is defined ? 'Editar' : 'Adicionar' }}
+        </button>
+    </form>
+{% endblock %}
+```
+
+Atenção aos parâmetros na função `path`. Os parâmetros para enviar para o controlador é `series.id`, não a entidade toda:
+```php
+path('app_store_series_changes', { series: series.id }) 
+```
