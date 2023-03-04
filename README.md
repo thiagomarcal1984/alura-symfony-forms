@@ -195,3 +195,46 @@ O HTML não vai receber mais o parâmetro `series` na função `path`, mas sim o
 ```
 
 Sobre injeção de dependência: é possível instruir o Symfony a como criar determinados objetos. Para isso, é necessário referenciar no arquivo `/config/services.yaml` as classes e diretórios que os contém(?).
+
+# Adicionando mensagem
+Fazendo flash messages na unha usando sessões:
+
+Na função `deleteSeries`, inserir na sessão a mensagem confirmando a remoção:
+```php
+    public function deleteSeries(int $id, Request $request) : Response {
+        $this->seriesRepository->removeById($id);
+        $session = $request->getSession();
+        $session->set('success', 'Série removida com sucesso.');
+        return new RedirectResponse('/series');
+    }
+```
+Na função `addSeries`, inserir na sessão a mensagem confirmando a inserção:
+```php
+    #[Route('/series/create', name: 'app_add_series', methods: ['POST'])]
+    public function addSeries(Request $request) : Response {
+        $seriesName = $request->request->get('name');
+        $series = new Series($seriesName);
+        $session = $request->getSession();
+        $session->set('success', "Série \"$seriesName\" incluída com sucesso.");
+        $this->seriesRepository->save($series, true);
+        return new RedirectResponse('/series');
+    }
+```
+
+Na função `index`, exibir a mensagem e removê-la da sessão: 
+```php
+    public function index(Request $request): Response
+    {
+        $seriesList = $this->seriesRepository->findAll();
+        $session = $request->getSession();
+        $successMessage = $session->get('success');
+        $session->remove('success');
+        $seriesList =  $this->seriesRepository->findAll();
+
+        return $this->render('series/index.html.twig', [
+            'seriesList' => $seriesList,
+            'successMessage' => $successMessage,
+        ]);
+    }
+
+```
