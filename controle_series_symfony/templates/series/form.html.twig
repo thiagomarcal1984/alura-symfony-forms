@@ -11,7 +11,7 @@
     <form method="post" action="{{ path('app_add_series') }}">
         <div class="mb-3">
             <label class="form-label" for="name">Nome da série</label>
-            <input class="form-control" type="text" name="name" id="name">
+            <input class="form-control" type="text" name="name" id="name" value="{{ series.name }}">
         </div>
         <button class="btn btn-dark">Adicionar</button>
     </form>

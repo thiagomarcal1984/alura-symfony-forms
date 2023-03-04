@@ -60,4 +60,9 @@ class SeriesController extends AbstractController
         $session->set('success', 'Série removida com sucesso.');
         return new RedirectResponse('/series');
     }
+
+    #[Route('/series/edit/{series}', name: 'app_edit_series_form', methods: ['GET'])]
+    public function editSeriesForm(Series $series): Response {
+        return $this->render('series/form.html.twig', compact('series'));
+    }
 }

@@ -238,3 +238,63 @@ Na função `index`, exibir a mensagem e removê-la da sessão:
     }
 
 ```
+
+# Editando uma série
+Nova rota para edição:
+```php
+    #[Route('/series/edit/{series}', name: 'app_edit_series_form', methods: ['GET'])]
+    public function editSeriesForm(Series $series): Response {
+        return $this->render('series/form.html.twig', compact('series'));
+    }
+```
+
+Repare que a função `compact` recebe como parâmetro uma `string` que representa o nome da variável que contém o array, não a `entidade` $series. Ela cria um array associativo cujos índices são os nomes das variáveis, e os valores são os contéudos de cada variável:
+
+```php
+<?php
+$cidade = "Sao Paulo";
+$estado = "SP";
+$evento = "SIGGRAPH";
+
+$vars_localidade = array("cidade", "estado");
+
+$result = compact("evento", $vars_localidade);
+print_r($result);
+?>
+```
+Cuja saída é:
+```
+Array
+(
+    [evento] => SIGGRAPH
+    [cidade] => Sao Paulo
+    [estado] => SP
+)
+```
+
+Atualização em `form.html.twig` (isso vai funcionar para edição, mas vai quebrar para inserção):
+```HTML
+<input class="form-control" type="text" name="name" id="name" value="{{ series.name }}">
+```
+
+Inserção do botão de editar em `index.html.twig`:
+```HTML
+<ul class="list-group">
+    {% for series in seriesList %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ series.name }}
+            <div class="d-flex">
+                <a href="{{ path('app_edit_series_form', { series: series.id }) }}" class="btn btn-sm btn-primary me-2">
+                    E
+                </a>
+                <form action="{{ path('app_delete_series', { id: series.id }) }}" method="post">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button class="btn btn-sm btn-danger">
+                        X
+                    </button>
+                </form>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+```
