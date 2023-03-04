@@ -37,3 +37,31 @@ O arquivo `src\Kernel.php` inicializa todo o framework, e ele utiliza o arquivo 
 A debug toolbar já vem por padrão com o Twig. Mas ela pode ser instalada isoladamente, com a dependência `symfony/profiler-pack`: https://symfony.com/doc/current/profiler.html
 
 Pode ser melhor usar o Symfony Profiler/Debug toolbar do que as ferramentas de desenvolvedor do navegador. A Debug toolbar mostra dados de sessão, flash messages, ordem de carregamento dos templates do Twig, funcionamento do cache, parâmetros de configuração da aplicação etc.
+
+# Nomeando rotas
+Por padrão, nomeamos as rotas prefixando-as com `app_`.
+
+Código PHP do controller:
+```php
+    #[Route('/series/create', name: 'app_series_form', methods: ['GET'])]
+    public function addSeriesForm() : Response {
+        return $this->render('/series/form.html.twig');
+    }
+```
+
+A função `path` converte o nome da rota para o caminho real da rota. Assim, o caminho pode ser modificado porque ele é recuperado a partir do nome da rota.
+
+Código para invocar a rota nomeada no Twig:
+```php
+    <a class="btn btn-dark mb-3" href="{{ path('app_series_form') }}">Adicionar</a>
+```
+
+Comando na CLI para mostrar todas as rotas da aplicação: 
+```
+php .\bin\console debug:router
+```
+
+Caso você também queira ver qual o controller executado em cada rota, pode adicionar o parâmetro `--show-controllers` ao comando, ficando:
+```
+ php bin/console debug:router --show-controllers
+```
