@@ -8,7 +8,8 @@
         {% for series in seriesList %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 {{ series.name }}
-                <form action="/series/delete?id={{ series.id }}" method="post">
+                <form action="{{ path('app_delete_series', { id: series.id }) }}" method="post">
+                    <input type="hidden" name="_method" value="DELETE">
                     <button class="btn btn-sm btn-danger">
                         X
                     </button>

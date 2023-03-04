@@ -39,6 +39,12 @@ class SeriesRepository extends ServiceEntityRepository
         }
     }
 
+    public function removeById(int $id) {
+        // getPartialReference recupera o objeto que conterá apenas o ID.
+        $series = $this->getEntityManager()->getPartialReference(Series::class, $id);
+        $this->remove($series, flush: true);
+    }
+
 //    /**
 //     * @return Series[] Returns an array of Series objects
 //     */

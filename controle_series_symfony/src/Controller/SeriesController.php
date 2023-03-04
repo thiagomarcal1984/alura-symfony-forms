@@ -13,11 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SeriesController extends AbstractController
 {
-    public function __construct(
-        private SeriesRepository $seriesRepository,
-        // EntityManager foi injetado para RECUPERAR o objeto.
-        private EntityManagerInterface $entityManager, 
-    )
+    public function __construct(private SeriesRepository $seriesRepository)
     {
     }
 
@@ -44,12 +40,9 @@ class SeriesController extends AbstractController
         return new RedirectResponse('/series');
     }
 
-    #[Route('/series/delete', methods: ['POST'])]
-    public function deleteSeries(Request $request) : Response {
-        $id = $request->query->get('id');
-        // getPartialReference recupera o objeto que conterá apenas o ID.
-        $series = $this->entityManager->getPartialReference(Series::class, $id);
-        $this->seriesRepository->remove($series, flush: true);
+    #[Route('/series/delete/{id}', name: 'app_delete_series', methods: ['DELETE'])]
+    public function deleteSeries(int $id) : Response {
+        $this->seriesRepository->removeById($id);
         return new RedirectResponse('/series');
     }
 }

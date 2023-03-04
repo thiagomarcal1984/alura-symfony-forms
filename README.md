@@ -96,3 +96,53 @@ class SeriesController extends AbstractController
     }
 }
 ```
+
+# Parâmetros em rotas
+ Inserindo lógica de remoção por ID no repositório: 
+ ```php
+ ...
+class SeriesRepository extends ServiceEntityRepository
+{
+    ...
+     public function removeById(int $id) {
+        // getPartialReference recupera o objeto que conterá apenas o ID.
+        $series = $this->getEntityManager()->getPartialReference(Series::class, $id);
+        $this->remove($series, flush: true);
+    }
+}
+```
+
+ Removendo lógica de remoção por ID no controlador, removendo o EntityManager, inserindo nome da rota e mudando método HTTP permitido: 
+ ```php
+ ...
+class SeriesController extends AbstractController
+{
+    public function __construct(private SeriesRepository $seriesRepository)
+    {
+    }
+    ...
+     #[Route('/series/delete/{id}', name: 'app_delete_series', methods: ['DELETE'])]
+    public function deleteSeries(int $id) : Response {
+        $this->seriesRepository->removeById($id);
+        return new RedirectResponse('/series');
+    }
+}
+```
+
+É possível forçar no Symfony que os formulários HTML usem outros métodos HTTP além do `GET` e `POST` através de uma configuração em `\config\packages\framework.yaml`:
+
+```YML
+framework:
+    ...
+    http_method_override: true
+```
+
+O parâmetro `http_method_override` determina se o parâmetro de requisição `_method` é usado como o método HTTP pretendido nas requisições do tipo POST:
+```HTML
+<form action="{{ path('app_delete_series', { id: series.id }) }}" method="post">
+    <input type="hidden" name="_method" value="DELETE">
+    <button class="btn btn-sm btn-danger">
+        X
+    </button>
+</form>
+```
