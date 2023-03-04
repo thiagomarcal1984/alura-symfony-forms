@@ -8,6 +8,7 @@
 {% block title %}{{ series is defined ? 'Editar' : 'Nova' }} Série{% endblock %}
 
 {% block body %}
+<!-- 
     <form method="post" action="{{ series is defined ? path('app_store_series_changes', { series: series.id }) : path('app_add_series') }}">
         <div class="mb-3">
             <label class="form-label" for="name">Nome da série</label>
@@ -22,4 +23,6 @@
             {{ series is defined ? 'Editar' : 'Adicionar' }}
         </button>
     </form>
+ -->
+    {{ form(seriesForm) }}
 {% endblock %}

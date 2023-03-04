@@ -376,3 +376,57 @@ Sintaxe para exibir as flash messages no template:
 ```
 
 O objeto `app` sempre existe em um template do Twig. Pode referenciá-lo sem medo.
+
+# Entendendo a ideia
+O Symfony dispõe de um componentes para formulários, que pode ser baixado por meio do comando abaixo (caso você não esteja usando a versão completa do Symfony):
+
+```
+composer require symfony/form
+```
+
+
+Em `config/packages/twig.yaml` nós podemos definir o tema para os formulários. Depois de realizados os imports, podemos modificar esse arquivo e incluir o tema do Bootstrap 5:
+```yaml
+twig:
+    form_themes: ['bootstrap_5_layout.html.twig']
+```
+Você também pode aplicar o tema localmente no template ao invés de fazer isso globalmente em `config/packages/twig.yaml`:
+```php
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+```
+
+O método para criação do formulário no controller se chama `createFormBuilder`. Ele retorna um objeto do tipo `FormBuilderInterface`.
+
+Para cada campo do formulário você usa o método `add` que tem 3 parâmetros: nome do campo, classe do campo e um array com opções.
+
+Finalmente, o `FormBuilderInterface` não pode ser enviado para o template, mas sim o formulário gerado pelo método `getForm()`.
+
+Veja o controlador abaixo:
+```php
+    #[Route('/series/create', name: 'app_series_form', methods: ['GET'])]
+    public function addSeriesForm() : Response {
+        $seriesForm = $this->createFormBuilder(new Series(''))
+            ->add('name', TextType::class, [ 'label' => 'Nome' ])
+            ->add('save', SubmitType::class, [ 'label' => 'Adicionar' ])
+            ->getForm()
+        ;
+
+        return $this->renderForm('/series/form.html.twig', compact('seriesForm'));
+    }
+```
+
+
+O método para renderização de uma página com um formulário do Symfony é diferente. Não é `render`, mas sim `renderForm`:
+
+```php
+return $this->renderForm('/series/form.html.twig', compact('seriesForm'));
+```
+
+Finalmente, para renderizar o formulário Symfony no Twig use a função `form` e forneça como parâmetro o formulário que está no controller:
+
+```php
+{% block body %}
+    {{ form(seriesForm) }}
+{% endblock %}
+
+```
