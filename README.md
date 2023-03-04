@@ -65,3 +65,8 @@ Caso você também queira ver qual o controller executado em cada rota, pode adi
 ```
  php bin/console debug:router --show-controllers
 ```
+
+# Botão de exclusão
+A boa prática é que ações que **modifiquem** o banco de dados sejam invocadas pelo método `POST`, não pelo método `GET`.
+
+Exemplo: se os webcrawlers identificarem alguma URL que permita modificações do banco através do método GET, os webcrawlers vão acidentalmente alterar o banco de dados.
