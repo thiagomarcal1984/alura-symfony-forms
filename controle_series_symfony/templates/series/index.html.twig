@@ -3,11 +3,6 @@
 {% block title %}Listagem de Séries{% endblock %}
 
 {% block body %}
-    {% if successMessage is not empty %}
-        <div class="alert alert-success">
-            {{ successMessage }}
-        </div>
-    {% endif %}
     <a class="btn btn-dark mb-3" href="{{ path('app_series_form') }}">Adicionar</a>
     <ul class="list-group">
         {% for series in seriesList %}

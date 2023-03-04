@@ -357,3 +357,22 @@ Atenção aos parâmetros na função `path`. Os parâmetros para enviar para o 
 ```php
 path('app_store_series_changes', { series: series.id }) 
 ```
+
+# Usando Flash Message
+Sintaxe de flash messages no controller:
+```php
+$this->addFlash('success', 'Série removida com sucesso.');
+```
+Sintaxe para exibir as flash messages no template:
+```php
+{# pass an array argument to get the messages of those types  #}
+{% for type, messages in app.flashes(['success', 'sucess']) %}
+    {% for message in messages %}
+        <div class="alert alert-{{ type }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+```
+
+O objeto `app` sempre existe em um template do Twig. Pode referenciá-lo sem medo.

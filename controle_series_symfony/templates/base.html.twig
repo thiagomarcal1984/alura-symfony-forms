@@ -22,6 +22,15 @@
     <body>
         <div class="container">
             <h1>{{ block('title') }}</h1>
+            {# pass an array argument to get the messages of those types  #}
+            {% for type, messages in app.flashes(['success', 'sucess']) %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        
             {% block body %}
             {% endblock %}
         </div>
