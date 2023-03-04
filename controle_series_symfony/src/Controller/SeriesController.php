@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Series;
 use App\Repository\SeriesRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SeriesController extends AbstractController
 {
-    public function __construct(private SeriesRepository $seriesRepository)
+    public function __construct(
+        private SeriesRepository $seriesRepository,
+        // EntityManager foi injetado para RECUPERAR o objeto.
+        private EntityManagerInterface $entityManager, 
+    )
     {
     }
 
@@ -36,6 +41,15 @@ class SeriesController extends AbstractController
         $seriesName = $request->request->get('name');
         $series = new Series($seriesName);
         $this->seriesRepository->save($series, true);
+        return new RedirectResponse('/series');
+    }
+
+    #[Route('/series/delete', methods: ['POST'])]
+    public function deleteSeries(Request $request) : Response {
+        $id = $request->query->get('id');
+        // getPartialReference recupera o objeto que conterá apenas o ID.
+        $series = $this->entityManager->getPartialReference(Series::class, $id);
+        $this->seriesRepository->remove($series, flush: true);
         return new RedirectResponse('/series');
     }
 }

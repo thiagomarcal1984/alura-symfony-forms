@@ -70,3 +70,29 @@ Caso você também queira ver qual o controller executado em cada rota, pode adi
 A boa prática é que ações que **modifiquem** o banco de dados sejam invocadas pelo método `POST`, não pelo método `GET`.
 
 Exemplo: se os webcrawlers identificarem alguma URL que permita modificações do banco através do método GET, os webcrawlers vão acidentalmente alterar o banco de dados.
+
+# Excluindo uma série
+Lembre-se do padrão POST-REDIRECT-GET: impeça o reenvio de formulário.
+
+Código para excluir um objeto:
+```php
+class SeriesController extends AbstractController
+{
+    public function __construct(
+        private SeriesRepository $seriesRepository,
+        // EntityManager foi injetado para RECUPERAR o objeto.
+        private EntityManagerInterface $entityManager, 
+    )
+    {
+    }
+ 
+    #[Route('/series/delete', methods: ['POST'])]
+    public function deleteSeries(Request $request) : Response {
+        $id = $request->query->get('id');
+        // getPartialReference recupera o objeto que conterá apenas o ID.
+        $series = $this->entityManager->getPartialReference(Series::class, $id);
+        $this->seriesRepository->remove($series, flush: true);
+        return new RedirectResponse('/series');
+    }
+}
+```
