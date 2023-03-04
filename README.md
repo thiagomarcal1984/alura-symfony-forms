@@ -32,3 +32,8 @@ Cada bundle referenciado no arquivo `config\bundles.php` contém elementos próp
 Aquela página inicial do Symfony que muda de cor a cada refresh é gerada automaticamente pelo componente FrameworkBundle, aquele padrão da instalação mínima!
 
 O arquivo `src\Kernel.php` inicializa todo o framework, e ele utiliza o arquivo `config\bundles.php`.
+
+# Debug toolbar
+A debug toolbar já vem por padrão com o Twig. Mas ela pode ser instalada isoladamente, com a dependência `symfony/profiler-pack`: https://symfony.com/doc/current/profiler.html
+
+Pode ser melhor usar o Symfony Profiler/Debug toolbar do que as ferramentas de desenvolvedor do navegador. A Debug toolbar mostra dados de sessão, flash messages, ordem de carregamento dos templates do Twig, funcionamento do cache, parâmetros de configuração da aplicação etc.

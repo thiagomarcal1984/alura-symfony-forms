@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  # # O serviço aplicativo_php não foi gerado pelo Symfony.
+  # aplicativo_php:
+  #   image: php:8.1.4-apache
+  #   restart: always
+  #   volumes:
+  #     - ./:/var/www/html/
+  #   ports:
+  #     - "8080:80"
+  # Vai ser necessário criar um Dockerfile e referenciá-lo aqui.
+  #   environment:
+  #     - APACHE_DOCUMENT_ROOT=/var/www/html/public
+  #   depends_on:
+  #     - database
+  #   links:
+  #     - database
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: appdb
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: senha
+      POSTGRES_USER: usuario
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+volumes:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###
