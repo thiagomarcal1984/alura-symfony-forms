@@ -146,3 +146,52 @@ O parâmetro `http_method_override` determina se o parâmetro de requisição `_
     </button>
 </form>
 ```
+
+# Injeção de dependências
+O parâmetro `requirements` dentro da anotação `Route` permite definir um array associativo que estabelece regras para cada parâmetro fornecido no path.
+
+Exemplo de código usando a entidade:
+```php
+    #[Route(
+        '/series/delete/{series}', 
+        name: 'app_delete_series', 
+        methods: ['DELETE'],
+        // O Symfony vai varrer a classe entidade até achar a 'id', depois ele recupera a entidade.
+        requirements : ['id' => '[0-9]+'], 
+    )]
+    public function deleteSeries(Series $series) : Response {
+        $this->seriesRepository->remove($series, flush: true);
+        return new RedirectResponse('/series');
+    }
+```
+HTML usado para chamar a rota `app_delete_series`:
+```HTML
+<form action="{{ path('app_delete_series', { series: series.id }) }}" method="post">
+    ...
+</form>
+```
+
+
+Agora exemplo de código usando o id da entidade diretamente:
+```php
+    #[Route(
+        '/series/delete/{id}', 
+        name: 'app_delete_series', 
+        methods: ['DELETE'],
+        // O Symfony vai varrer a classe entidade até achar a 'id', depois ele recupera a entidade.
+        requirements : ['id' => '[0-9]+'], 
+    )]
+    public function deleteSeries(int $id) : Response {
+        $this->seriesRepository->removeById($id);
+        return new RedirectResponse('/series');
+    }
+```
+
+O HTML não vai receber mais o parâmetro `series` na função `path`, mas sim o parâmetro `id`:
+```HTML
+<form action="{{ path('app_delete_series', { id: series.id }) }}" method="post">
+    ...
+</form>
+```
+
+Sobre injeção de dependência: é possível instruir o Symfony a como criar determinados objetos. Para isso, é necessário referenciar no arquivo `/config/services.yaml` as classes e diretórios que os contém(?).

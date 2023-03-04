@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Series;
 use App\Repository\SeriesRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +39,13 @@ class SeriesController extends AbstractController
         return new RedirectResponse('/series');
     }
 
-    #[Route('/series/delete/{id}', name: 'app_delete_series', methods: ['DELETE'])]
+    #[Route(
+        '/series/delete/{id}', 
+        name: 'app_delete_series', 
+        methods: ['DELETE'],
+        // O Symfony vai varrer a classe entidade até achar a 'id', depois ele recupera a entidade.
+        requirements : ['id' => '[0-9]+'], 
+    )]
     public function deleteSeries(int $id) : Response {
         $this->seriesRepository->removeById($id);
         return new RedirectResponse('/series');
