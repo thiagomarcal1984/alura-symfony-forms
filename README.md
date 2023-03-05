@@ -559,3 +559,62 @@ class Series
     // Resto do código.
 }
 ```
+
+# Validando os dados
+O componente de validação do Symfony não vem na instalação mínima. Para usá-lo, instale com o composer:
+```
+composer require symfony/validator
+```
+Uma vez que você tem o componente instalado e define os formulários da forma vista anteriormente, você testa a validação do formulário usando o método `isValid()` do formulário. Caso o formulário esteja inválido, o controller retorna o template com o formulário inválido mas preenchido:
+```php
+    #[Route('/series/create', name: 'app_add_series', methods: ['POST'])]
+    public function addSeries(Request $request) : Response {
+        $series = new Series();
+        $seriesForm = $this->createForm(SeriesType::class, $series)
+        ;
+        if(!$seriesForm->isValid()) {
+            return $this->renderForm('series/form.html.twig', compact('seriesForm'));
+        }
+        $this->seriesRepository->save($series, true);
+        $this->addFlash(
+            'success', 
+            "Série \"{$series->getName()}\" incluída com sucesso."
+        );
+        return new RedirectResponse('/series');
+    }
+```
+Adendo: as constraints na entidade podem deixar o código mais poluído e menos flexível para mudanças de framework. Você pode definir as validações no arquivo `config\validator\validation.yaml`:
+
+```YAML
+App\Entity\Series:
+    properties:
+        name:
+            - NotBlank: ~
+            - Length:
+                min: 5
+```
+
+Remoção das constraints de validação da classe da entidade (elas foram transportadas para o arquivo `config\validator\validations.yaml`, apenas as anotações do Doctrine permaneceram):
+```php
+namespace App\Entity;
+
+use App\Repository\SeriesRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: SeriesRepository::class)]
+class Series
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    public function __construct(
+        #[ORM\Column]
+        private ?string $name = ''
+    )
+    {
+    }
+    // ... getters e setters.
+}
+```

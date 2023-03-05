@@ -1,0 +1,6 @@
+App\Entity\Series:
+    properties:
+        name:
+            - NotBlank: ~
+            - Length:
+                min: 5
