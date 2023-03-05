@@ -635,3 +635,62 @@ Detalhes de algumas funções:
 1. `form_label(nome_campo, 'Novo Rótulo'")` sobrescreve o rótulo original do campo.
 2. `form_widget(nome_campo, {'attr' : {'class' : 'text-center' } }")` modifica os atributos do widget do campo.
 3. `form(nome_formulario, {'method': 'GET'})` sobrescreve o método HTTP usado no formulário.
+
+# Corrigindo a edição
+Código do formulário SeriesType:
+```php
+namespace App\Form;
+
+//... imports.
+
+class SeriesType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add(child: 'name', options: [ 'label' => 'Nome' ])
+            // O texto do botão submit varia em função do tipo de formulário: edição ou criação.
+            ->add('save', SubmitType::class, [ 'label' => $options['is_edit'] ? 'Editar' : 'Adicionar' ])
+            ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
+        ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Series::class,
+            'is_edit' => false, // O valor padrão para a opção 'is_edit' no formulário é false.
+        ]);
+
+        $resolver->setAllowedTypes('is_edit', 'bool'); // O valor para 'is_edit' deve ser booleano.
+    }
+}
+```
+Código das duas rotas de edição (a com método `GET` e a com o método `PATCH`):
+```php
+    // Rota com GET
+    #[Route('/series/edit/{series}', name: 'app_edit_series_form', methods: ['GET'])]
+    public function editSeriesForm(Series $series): Response {
+        $seriesForm = $this->createForm(SeriesType::class, $series, ['is_edit' => true ]);
+        return $this->renderForm('series/form.html.twig', compact('seriesForm', 'series'));
+    }
+
+    // Rota com PATCH
+    #[Route('/series/edit/{series}', name: 'app_store_series_changes', methods: ['PATCH'])]
+    public function storeSeriesChanges(Series $series, Request $request): Response {
+        $seriesForm = $this->createForm(SeriesType::class, $series, ['is_edit' => true]);
+        $seriesForm->handleRequest($request);
+
+        if (!$seriesForm->isValid()) {
+            return $this->renderForm('series/form.html.twig', compact('seriesForm', 'series'));
+        }
+        $this->entityManager->flush(); // Confirma as alterações no banco.
+        $this->addFlash('success', "Série {$series->getName()} editada com sucesso");
+        return new RedirectResponse('/series');
+    }
+```
+Algumas observações: 
+1. A obtenção das variáveis enviadas na requisição NECESSARIAMENTE DEVEM SER FEITAS MEDIANTE UM FORMTYPE DO SYMFONY. É diferente de como o ZendFramework funciona, que permite parametrizar a requisição para gerar o formulário.
+2. A função `compact` inseriu duas variáveis desta vez. O funcionamneto: para cada parâmetro (como string), ele define a key, e ao valor é atribuída variável mencionada na key.
+3. Tá usando um FormType? A renderização é com o método `renderForm`, e não com o método `render`.
+4. Você pode fornecer opções ao formulário (método `createForm`), na forma da definição do FormType dentro do método `configureOptions`.

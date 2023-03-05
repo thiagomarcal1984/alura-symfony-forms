@@ -14,7 +14,9 @@ class SeriesType extends AbstractType
     {
         $builder
             ->add(child: 'name', options: [ 'label' => 'Nome' ])
-            ->add('save', SubmitType::class, [ 'label' => 'Adicionar' ])
+            // O texto do botão submit varia em função do tipo de formulário: edição ou criação.
+            ->add('save', SubmitType::class, [ 'label' => $options['is_edit'] ? 'Editar' : 'Adicionar' ])
+            ->setMethod($options['is_edit'] ? 'PATCH' : 'POST')
         ;
     }
 
@@ -22,6 +24,9 @@ class SeriesType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Series::class,
+            'is_edit' => false, // O valor padrão para a opção 'is_edit' no formulário é false.
         ]);
+
+        $resolver->setAllowedTypes('is_edit', 'bool'); // O valor para 'is_edit' deve ser booleano.
     }
 }
