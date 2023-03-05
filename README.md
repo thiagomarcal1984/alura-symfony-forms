@@ -430,3 +430,70 @@ Finalmente, para renderizar o formulário Symfony no Twig use a função `form` 
 {% endblock %}
 
 ```
+# Extraindo um FormType
+No contexto de formulários, o Symfony pode organizar os objetos em 3 classes: 
+1. um tipo para os campos individuais (TextType, SubmitType etc.);
+2. um tipo para grupos de campos (Endereço, por exemplo); e
+3. um tipo para o formulário inteiro.
+
+Criando um formulário via linha de comando do Symfony:
+```
+php bin/console make:form EntidadeType.
+```
+
+Exemplo do comando usado para o formulário SeriesType:
+```
+PS D:\alura\symfony-forms\controle_series_symfony> php bin/console make:form SeriesType
+
+ The name of Entity or fully qualified model class name that the new form will be bound to (empty for none):
+ > Series
+
+ created: src/Form/SeriesType.php
+
+ 
+  Success! 
+ 
+
+ Next: Add fields to your form and start using it.
+ Find the documentation at https://symfony.com/doc/current/forms.html
+ ```
+
+ Código do `SeriesType`:
+ ```php
+namespace App\Form;
+
+// ...
+
+class SeriesType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            // As opções do campo name não foram geradas automaticamente.
+            ->add(child: 'name', options: [ 'label' => 'Nome' ])
+            // O campo save não foi gerado automaticamente.
+            ->add('save', SubmitType::class, [ 'label' => 'Adicionar' ])
+        ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Series::class,
+        ]);
+    }
+}
+ ```
+
+ Código da rota para adicionar uma série:
+ ```php
+     #[Route('/series/create', name: 'app_series_form', methods: ['GET'])]
+    public function addSeriesForm() : Response {
+        $seriesForm = $this->createForm(SeriesType::class, new Series(''));
+        return $this->renderForm('/series/form.html.twig', compact('seriesForm'));
+    }
+ ```
+
+Repare que o método `createForm` tem dois parâmetros: o tipo de formulário e o objeto que será representado no formulário.
+
+**O código para inserção via POST ficou quebrado**.
