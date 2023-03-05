@@ -525,3 +525,37 @@ O método `handleRequest` no formulário exige uma requisição como parâmetro.
 O `handleRequest` pega os parâmetros da requisição e tenta inseri-los no objeto fornecido como segundo parâmetro do método `createForm`. Ou seja, o objeto `$series` vai ser o mesmo (inclusive ter a mesma identificação) daquele que for retornado do método `$this->createForm()->handleRequest()->getData()`.
 
 **Agora o código para inserção via POST não está mais quebrado.**
+
+# Adicionando validações
+Uma das formas de fazer validação no Symfony é colocando constraints nas propriedades das entidades. Essas constraints podem ser aplicadas através do código disponível no namespace `Symfony\Component\Validator\Constraints`.
+
+Assim, os formulários do Symfony conseguem configurar o seu frontend para definir as validações client-side.
+
+Código da entidade Series:
+```php
+namespace App\Entity;
+
+use App\Repository\SeriesRepository;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[ORM\Entity(repositoryClass: SeriesRepository::class)]
+class Series
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    public function __construct(
+        #[ORM\Column]
+        #[Assert\NotBlank]
+        #[Assert\Length(min: 5)]
+        private ?string $name = ''
+    )
+    {
+    }
+
+    // Resto do código.
+}
+```
