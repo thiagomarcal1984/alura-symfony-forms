@@ -618,3 +618,20 @@ class Series
     // ... getters e setters.
 }
 ```
+# Separando componentes
+Link do Symfony sobre customização dos formulários: https://symfony.com/doc/current/form/form_customization.html
+
+As seguintes funções no template do Twig possibilitam a exibição personalizada dos elementos do formulário:
+1. `form_label(nome_campo)` exibe o rótulo.
+2. `form_errors(nome_campo | nome_formulario.nome_campo)` exibe a lista de erros encontrados. Se o parâmetro for o formulário, apenas os erros GLOBAIS são exibidos. É possível exibir erros de apenas um campo específico. Exemplo: `{{ form_errors(seriesForm.name) }}`.
+3. `form_help(nome_campo)` exibe o texto de ajuda ao preenchimento do campo.
+4. `form_widget(nome_campo)` exibe o componente que vai conter os dados do campo (input, select, checkbox etc.).
+5. `form_row(nome_campo)` exibe o conjunto de elementos associados ao campo. Exemplo: input, label, mensagem de erro e mensagem de ajuda.
+6. `form_start(nome_formulario)` define o início da exibição personalizada do formulário. 
+7. `form_end(nome_formulario)` exibe os campos que ainda não apareceram. Por exemplo, o botão de submit. 
+7. `form(nome_formulario)` exibe todos os objetos do formulário.
+
+Detalhes de algumas funções:
+1. `form_label(nome_campo, 'Novo Rótulo'")` sobrescreve o rótulo original do campo.
+2. `form_widget(nome_campo, {'attr' : {'class' : 'text-center' } }")` modifica os atributos do widget do campo.
+3. `form(nome_formulario, {'method': 'GET'})` sobrescreve o método HTTP usado no formulário.
