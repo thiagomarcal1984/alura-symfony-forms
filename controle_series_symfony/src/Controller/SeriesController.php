@@ -7,8 +7,6 @@ use App\Form\SeriesType;
 use App\Repository\SeriesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,10 +40,18 @@ class SeriesController extends AbstractController
 
     #[Route('/series/create', name: 'app_add_series', methods: ['POST'])]
     public function addSeries(Request $request) : Response {
-        $seriesName = $request->request->get('name');
-        $series = new Series($seriesName);
-        $this->addFlash('success', "Série \"$seriesName\" incluída com sucesso.");
+        $series = new Series();
+        $this->createForm(SeriesType::class, $series)
+            ->handleRequest($request) // Preenche o objeto $series com os dados da requisição.
+            // ->isValid() // booleano.
+            // ->isSubmitted() // booleano.
+            // ->getData() // Retorna cópia do objeto $series preenchido.
+        ;
         $this->seriesRepository->save($series, true);
+        $this->addFlash(
+            'success', 
+            "Série \"{$series->getName()}\" incluída com sucesso."
+        );
         return new RedirectResponse('/series');
     }
 

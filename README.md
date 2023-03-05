@@ -497,3 +497,31 @@ class SeriesType extends AbstractType
 Repare que o método `createForm` tem dois parâmetros: o tipo de formulário e o objeto que será representado no formulário.
 
 **O código para inserção via POST ficou quebrado**.
+
+# Lidando com o envio de dados
+
+Código da rota de criação da série:
+```php
+    #[Route('/series/create', name: 'app_add_series', methods: ['POST'])]
+    public function addSeries(Request $request) : Response {
+        $series = new Series();
+        $this->createForm(SeriesType::class, $series)
+            ->handleRequest($request) // Preenche o objeto $series com os dados da requisição.
+            // ->isValid() // booleano.
+            // ->isSubmitted() // booleano.
+            // ->getData() // Retorna o objeto $series preenchido.
+        ;
+        $this->seriesRepository->save($series, true);
+        $this->addFlash(
+            'success', 
+            "Série \"{$series->getName()}\" incluída com sucesso."
+        );
+        return new RedirectResponse('/series');
+    }
+```
+
+O método `handleRequest` no formulário exige uma requisição como parâmetro. Isso é óbvio, mas não se esqueça.
+
+O `handleRequest` pega os parâmetros da requisição e tenta inseri-los no objeto fornecido como segundo parâmetro do método `createForm`. Ou seja, o objeto `$series` vai ser o mesmo (inclusive ter a mesma identificação) daquele que for retornado do método `$this->createForm()->handleRequest()->getData()`.
+
+**Agora o código para inserção via POST não está mais quebrado.**
